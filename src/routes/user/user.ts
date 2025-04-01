@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 
 export const userRouter = express();
 
-
 const jwtSecret = process.env.JWT_SECRET;
 
 
@@ -11,12 +10,11 @@ function generateNonce() {
     return Math.floor(Math.random() * 10000).toString();
 }
 
-userRouter.get("/checkenc", (req, res) => {
-    res.send(jwtSecret);
-})
+function signMessage(address:string, nonce:string) {
+    return `Please sign this message ${address}:\n\n${nonce}`
+}
 
-
-userRouter.get("/nonce", (req, res) => {
+userRouter.post("/nonce", (req, res) => {
     const {address} = req.body;
 
     if (!address) {
@@ -27,5 +25,12 @@ userRouter.get("/nonce", (req, res) => {
 
     const nonce = generateNonce();
 
-    const tempToken = jwt.sign({address, nonce}, jwtSecret,  )
+    const tempToken = jwt.sign({address, nonce}, jwtSecret, {expiresIn: "120s"})
+    const message = signMessage(address, nonce)
+
+    res.json({
+        tempToken: tempToken,
+        message: message,
+    })
 })
+
