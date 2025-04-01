@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -6,10 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.userRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-exports.userRouter = (0, express_1.default)();
+const ethers_1 = require("ethers");
+exports.userRouter = express_1.default.Router();
 const jwtSecret = process.env.JWT_SECRET;
 function generateNonce() {
-    return Math.floor(Math.random() * 10000).toString();
+    const nonce = new Date().getTime();
+    return nonce + Math.floor(Math.random() * 10000).toString();
 }
 function signMessage(address, nonce) {
     return `Please sign this message ${address}:\n\n${nonce}`;
@@ -29,3 +40,32 @@ exports.userRouter.post("/nonce", (req, res) => {
         message: message,
     });
 });
+exports.userRouter.post("/verify", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const authHeader = req.headers['authorization'];
+    const tempToken = authHeader && authHeader.split(" ")[1] || "";
+    const { signature } = req.body;
+    if (!tempToken) {
+        res.status(403).json({
+            message: "No token Found"
+        });
+        return;
+    }
+    const userData = jsonwebtoken_1.default.verify(tempToken, jwtSecret);
+    const nonce = userData.nonce;
+    const address = userData.address;
+    const message = signMessage(address, nonce);
+    const verifiedAddress = ethers_1.ethers.verifyMessage(message, signature);
+    if (verifiedAddress.toLowerCase() === address.toLowerCase()) {
+        const token = jsonwebtoken_1.default.sign({ verifiedAddress }, jwtSecret, { expiresIn: "1d" });
+        res.json({
+            token
+        });
+        return;
+    }
+    else {
+        res.status(403).json({
+            error: "token doesnt match",
+        });
+        return;
+    }
+}));

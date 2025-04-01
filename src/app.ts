@@ -1,12 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 dotenv.config();
 
 
 import { rootRouter } from "./routes/index";
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT;
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

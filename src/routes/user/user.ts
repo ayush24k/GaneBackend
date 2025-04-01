@@ -1,13 +1,16 @@
 import express from "express";
-import jwt from "jsonwebtoken"; 
+import jwt from "jsonwebtoken";
+import { ethers } from 'ethers'; 
+import { error } from "console";
 
-export const userRouter = express();
+export const userRouter = express.Router();
 
 const jwtSecret = process.env.JWT_SECRET;
 
 
 function generateNonce() {
-    return Math.floor(Math.random() * 10000).toString();
+    const nonce = new Date().getTime();
+    return nonce + Math.floor(Math.random() * 10000).toString();
 }
 
 function signMessage(address:string, nonce:string) {
@@ -32,5 +35,45 @@ userRouter.post("/nonce", (req, res) => {
         tempToken: tempToken,
         message: message,
     })
+})
+
+
+userRouter.post("/verify", async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const tempToken = authHeader && authHeader.split(" ")[1] || "";
+
+    const {signature} = req.body;
+
+    if (!tempToken) {
+        res.status(403).json({
+            message: "No token Found"
+        });
+        return;
+    }
+
+    interface jwtPayload {
+        address: string;
+        nonce: string;
+    }
+
+    const userData = jwt.verify(tempToken, jwtSecret) as jwtPayload;
+    const nonce = userData.nonce;
+    const address = userData.address;
+    const message = signMessage(address, nonce);
+
+    const verifiedAddress = ethers.verifyMessage(message, signature);
+
+    if (verifiedAddress.toLowerCase() === address.toLowerCase()) {
+        const token = jwt.sign({verifiedAddress}, jwtSecret, {expiresIn: "1d"})
+        res.json({
+            token
+        })
+        return;
+    } else {
+        res.status(403).json({
+            error: "token doesnt match",
+        })
+        return;
+    }
 })
 

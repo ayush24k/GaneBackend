@@ -6,5 +6,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.rootRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const user_1 = require("./user/user");
-exports.rootRouter = (0, express_1.default)();
+exports.rootRouter = express_1.default.Router();
 exports.rootRouter.use("/user", user_1.userRouter);
