@@ -1,7 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import { ethers } from 'ethers'; 
-import { error } from "console";
+import { authMiddleware } from "../../middleware/authMiddleware";
 
 export const userRouter = express.Router();
 
@@ -22,8 +22,9 @@ userRouter.post("/nonce", (req, res) => {
 
     if (!address) {
         res.status(400).json({
-            Error: "Address is required"
+            Error: "address not found"
         })
+        return;
     }
 
     const nonce = generateNonce();
@@ -46,7 +47,7 @@ userRouter.post("/verify", async (req, res) => {
 
     if (!tempToken) {
         res.status(403).json({
-            message: "No token Found"
+            message: "Not token found"
         });
         return;
     }
@@ -71,9 +72,15 @@ userRouter.post("/verify", async (req, res) => {
         return;
     } else {
         res.status(403).json({
-            error: "token doesnt match",
+            error: "token is not correct",
         })
         return;
     }
+})
+
+userRouter.get("/checkProtected", authMiddleware, (req, res) => {
+    res.json({
+        working: "asdadsa"
+    })
 })
 

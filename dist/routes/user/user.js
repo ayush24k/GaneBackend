@@ -16,6 +16,7 @@ exports.userRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const ethers_1 = require("ethers");
+const authMiddleware_1 = require("../../middleware/authMiddleware");
 exports.userRouter = express_1.default.Router();
 const jwtSecret = process.env.JWT_SECRET;
 function generateNonce() {
@@ -29,8 +30,9 @@ exports.userRouter.post("/nonce", (req, res) => {
     const { address } = req.body;
     if (!address) {
         res.status(400).json({
-            Error: "Address is required"
+            Error: "address not found"
         });
+        return;
     }
     const nonce = generateNonce();
     const tempToken = jsonwebtoken_1.default.sign({ address, nonce }, jwtSecret, { expiresIn: "120s" });
@@ -46,7 +48,7 @@ exports.userRouter.post("/verify", (req, res) => __awaiter(void 0, void 0, void 
     const { signature } = req.body;
     if (!tempToken) {
         res.status(403).json({
-            message: "No token Found"
+            message: "Not token found"
         });
         return;
     }
@@ -64,8 +66,13 @@ exports.userRouter.post("/verify", (req, res) => __awaiter(void 0, void 0, void 
     }
     else {
         res.status(403).json({
-            error: "token doesnt match",
+            error: "token is not correct",
         });
         return;
     }
 }));
+exports.userRouter.get("/checkProtected", authMiddleware_1.authMiddleware, (req, res) => {
+    res.json({
+        working: "asdadsa"
+    });
+});
