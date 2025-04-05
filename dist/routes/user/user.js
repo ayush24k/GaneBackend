@@ -58,8 +58,8 @@ exports.userRouter.post("/verify", (req, res) => __awaiter(void 0, void 0, void 
     const message = signMessage(address, nonce);
     const verifiedAddress = ethers_1.ethers.verifyMessage(message, signature);
     if (verifiedAddress.toLowerCase() === address.toLowerCase()) {
-        const token = jsonwebtoken_1.default.sign({ verifiedAddress }, jwtSecret, { expiresIn: "1d" });
-        res.json({
+        const token = jsonwebtoken_1.default.sign({ verifiedAddress }, jwtSecret, { expiresIn: "12s" });
+        res.status(200).json({
             token
         });
         return;
@@ -71,6 +71,23 @@ exports.userRouter.post("/verify", (req, res) => __awaiter(void 0, void 0, void 
         return;
     }
 }));
+exports.userRouter.post("/checkToken", (req, res) => {
+    const { token } = req.body;
+    try {
+        const verifiedToken = jsonwebtoken_1.default.verify(token, jwtSecret);
+        if (verifiedToken) {
+            res.status(200).json({
+                message: "true"
+            });
+        }
+    }
+    catch (err) {
+        res.json({
+            err: err,
+            message: "false"
+        });
+    }
+});
 exports.userRouter.get("/checkProtected", authMiddleware_1.authMiddleware, (req, res) => {
     res.json({
         working: "asdadsa"

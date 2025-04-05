@@ -65,8 +65,8 @@ userRouter.post("/verify", async (req, res) => {
     const verifiedAddress = ethers.verifyMessage(message, signature);
 
     if (verifiedAddress.toLowerCase() === address.toLowerCase()) {
-        const token = jwt.sign({verifiedAddress}, jwtSecret, {expiresIn: "1d"})
-        res.json({
+        const token = jwt.sign({verifiedAddress}, jwtSecret, {expiresIn: "12s"})
+        res.status(200).json({
             token
         })
         return;
@@ -75,6 +75,23 @@ userRouter.post("/verify", async (req, res) => {
             error: "token is not correct",
         })
         return;
+    }
+})
+
+userRouter.post("/checkToken", (req,res) => {
+    const {token} = req.body;
+    try {
+        const verifiedToken = jwt.verify(token, jwtSecret)
+        if (verifiedToken) {
+            res.status(200).json({
+                message: "true"
+            })
+        }
+    } catch (err) {
+        res.json({
+            err: err,
+            message: "false"
+        })
     }
 })
 
