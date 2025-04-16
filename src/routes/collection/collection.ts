@@ -7,3 +7,12 @@ collectionRouter.get("/:name", (req, res) => {
     res.send(`we are on path ${name}`)
 })
 
+collectionRouter.post("/create", (req, res) => {
+    const data = req.body;
+    console.log(data);
+
+    res.json({
+        message: "success"
+    })
+})
+
