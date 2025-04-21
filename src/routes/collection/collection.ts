@@ -89,7 +89,7 @@ collectionRouter.post("/create-account", async (req, res) => {
 
     try {
         const client = await getClient();
-        const insertCollectionText = `
+        const insertAccountText = `
             INSERT INTO collectionAccount(
              accountName, 
              collection, 
@@ -102,7 +102,7 @@ collectionRouter.post("/create-account", async (req, res) => {
              profileImg
            ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`;
 
-        const collectionValues = [
+        const accountValues = [
             data.accountName,
             data.collection,
             data.royalty,
@@ -114,7 +114,7 @@ collectionRouter.post("/create-account", async (req, res) => {
             data.profileImg
         ];
 
-        const queryRes = await client.query(insertCollectionText, collectionValues);
+        const queryRes = await client.query(insertAccountText, accountValues);
         client.end();
     } catch (err) {
         console.log("error", err);
