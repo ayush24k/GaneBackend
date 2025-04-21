@@ -13,24 +13,36 @@ const db_1 = require("./db");
 function createTable() {
     return __awaiter(this, void 0, void 0, function* () {
         const client = yield (0, db_1.getClient)();
-        const createCollectionTableQuery = `
-        CREATE TABLE IF NOT EXISTS collections (
+        const createPlatformCollectionTableQuery = `
+        CREATE TABLE IF NOT EXISTS platformCollection (
             id SERIAL PRIMARY KEY,
-            email VARCHAR(255) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            name VARCHAR(255) NOT NULL
+            platformName VARCHAR(255) NOT NULL,
+            collectionSymbol VARCHAR(255) NOT NULL,
+            accountRoyalty VARCHAR(255) NOT NULL,
+            chain VARCHAR(255) NOT NULL,
+            accountType VARCHAR(255) NOT NULL,
+            websiteLink VARCHAR(255),
+            description VARCHAR(255),
+            backgroungImg VARCHAR(255),
+            profileImg VARCHAR(255) NOT NULL
         );
     `;
-        yield client.query(createCollectionTableQuery);
-        const createTestTableQuery = `
-        CREATE TABLE IF NOT EXISTS Test (
+        yield client.query(createPlatformCollectionTableQuery);
+        const createCollectionAccountTableQuery = `
+        CREATE TABLE IF NOT EXISTS collectionAccount (
             id SERIAL PRIMARY KEY,
-            email VARCHAR(255) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            name VARCHAR(255) NOT NULL
+            accountName VARCHAR(255) NOT NULL,
+            collection VARCHAR(255) NOT NULL,
+            royalty VARCHAR(255) NOT NULL,
+            type VARCHAR(255) NOT NULL,
+            supply VARCHAR(255) NOT NULL,
+            traits VARCHAR(255),
+            description VARCHAR(255),
+            backgroungImg VARCHAR(255),
+            profileImg VARCHAR(255) NOT NULL
         );
     `;
-        yield client.query(createTestTableQuery);
+        yield client.query(createCollectionAccountTableQuery);
         console.log("Table Created Successfully!");
         client.end();
     });
