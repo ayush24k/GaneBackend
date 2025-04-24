@@ -15,7 +15,8 @@ async function createTable() {
             websiteLink VARCHAR(255),
             description VARCHAR(255),
             backgroungImg VARCHAR(255),
-            profileImg VARCHAR(255) NOT NULL
+            profileImg VARCHAR(255) NOT NULL,
+            creatorId INTEGER REFERENCES users(id)
         );
     `;
 
@@ -32,7 +33,9 @@ async function createTable() {
             traits VARCHAR(255),
             description VARCHAR(255),
             backgroungImg VARCHAR(255),
-            profileImg VARCHAR(255) NOT NULL
+            profileImg VARCHAR(255) NOT NULL,
+            collectionId INTEGER REFERENCES platformmCollection(id),
+            ownerId INTEGER REFERENCES users(id)
         );
     `;
 
