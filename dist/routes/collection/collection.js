@@ -69,7 +69,7 @@ exports.collectionRouter.post("/create-account", (req, res) => __awaiter(void 0,
     console.log(data);
     try {
         const client = yield (0, db_1.getClient)();
-        const insertCollectionText = `
+        const insertAccountText = `
             INSERT INTO collectionAccount(
              accountName, 
              collection, 
@@ -81,7 +81,7 @@ exports.collectionRouter.post("/create-account", (req, res) => __awaiter(void 0,
              backgroungImg, 
              profileImg
            ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`;
-        const collectionValues = [
+        const accountValues = [
             data.accountName,
             data.collection,
             data.royalty,
@@ -92,7 +92,7 @@ exports.collectionRouter.post("/create-account", (req, res) => __awaiter(void 0,
             data.backgroungImg,
             data.profileImg
         ];
-        const queryRes = yield client.query(insertCollectionText, collectionValues);
+        const queryRes = yield client.query(insertAccountText, accountValues);
         client.end();
     }
     catch (err) {

@@ -1,5 +1,6 @@
 import express from "express";
 import { getClient } from "../../utils/db";
+import { getCollectionByChainAndAddress, getNFTByCollectionAndTokenId, getNFTsByCollection } from "./collection.func";
 
 export const collectionRouter = express.Router();
 
@@ -7,6 +8,8 @@ collectionRouter.get("/:name", (req, res) => {
     const name = req.params.name;
     res.send(`we are on path ${name}`)
 })
+
+// post collection handles
 
 collectionRouter.post("/create-collection", async (req, res) => {
 
@@ -131,3 +134,45 @@ collectionRouter.post("/create-account", async (req, res) => {
     return;
 })
 
+// get collectuon handles
+collectionRouter.get('/:chainId/:address', async (req, res) => {
+    const { chainId, address } = req.params;
+
+    // change later
+    const page = 10;
+    const pageSize = 20;
+
+    try {
+        const collection = await getCollectionByChainAndAddress(chainId, address);
+        if (!collection) {
+            res.status(404).json({ error: 'collection not found' });
+            return;
+        }
+        const [nfts, total] = await getNFTsByCollection(chainId, address, page, pageSize);
+        res.status(200).json({
+            collection,
+            nfts,
+            total,
+            page,
+        });
+    } catch (error) {
+        console.error("Error getting collection:", error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// get nft by collection and Token
+collectionRouter.get('/:chainId/:address/nft/:tokenId', async (req, res) => {
+    const { chainId, address, tokenId } = req.params;
+    try {
+        const nft = await getNFTByCollectionAndTokenId(chainId, address, tokenId);
+        if (!nft) {
+            res.status(404).json({ error: 'nft not found' });
+            return;
+        }
+        res.status(200).json(nft);
+    } catch (error) {
+        console.error("Error getting NFT:", error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
